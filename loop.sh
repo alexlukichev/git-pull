@@ -1,4 +1,7 @@
 #!/bin/bash
+# BRANCH - the name of the branch to check out
+# REPO - the URL of the repository
+# REPOKEY - (optional) the SSH private key to access the protected repo (the URL must be SSH)
 
 if [ -z $BRANCH ]; then
   echo "BRANCH not set" && exit 1
@@ -11,11 +14,27 @@ fi
 echo "BRANCH=$BRANCH"
 echo "REPO=$REPO"
 
-while true; do
-  if [ -d .git ]; then
+git_pull() {
+  if [ -z $REPOKEY ]; then
     git pull origin $BRANCH
   else
-    git clone --single-branch -b $BRANCH $REPO . 
+    ssh-agent bash -c "ssh-add $REPOKEY && git pull origin $BRANCH"
+  fi
+}
+
+git_clone() {
+  if [ -z $REPOKEY ]; then
+    git clone --single-branch -b $BRANCH $REPO .
+  else
+    ssh-agent bash -c "ssh-add $REPOKEY && git clone --single-branch -b $BRANCH $REPO ."
+  fi
+}
+
+while true; do
+  if [ -d .git ]; then
+    git_pull
+  else
+    git_clone 
   fi
   newrev=`git rev-parse $BRANCH`
   if [ ! -f .revision ] || ! [ `cat .revision` = $newrev ]; then

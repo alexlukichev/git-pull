@@ -10,6 +10,8 @@ ADD loop.sh /
 
 VOLUME /repo
 
+VOLUME /keys
+
 WORKDIR /repo
 
 CMD ["/loop.sh"]
