@@ -17,7 +17,11 @@ echo "REPO=$REPO"
 git_pull() {
   if [ -z $REPOKEY ]; then
     git pull origin $BRANCH
-  else
+  else    
+    mkdir -p ~/.ssh
+    if ! [ -f ~/.ssh/known_hosts] || ! grep "$KNOWN_HOST" ~/.ssh/known_hosts; then
+      echo "$KNOWN_HOST" >> ~/.ssh/known_hosts
+    fi
     ssh-agent bash -c "ssh-add $REPOKEY && git pull origin $BRANCH"
   fi
 }
@@ -25,7 +29,11 @@ git_pull() {
 git_clone() {
   if [ -z $REPOKEY ]; then
     git clone --single-branch -b $BRANCH $REPO .
-  else
+  else    
+    mkdir -p ~/.ssh
+    if ! [ -f ~/.ssh/known_hosts] || ! grep "$KNOWN_HOST" ~/.ssh/known_hosts; then
+      echo "$KNOWN_HOST" >> ~/.ssh/known_hosts
+    fi
     ssh-agent bash -c "ssh-add $REPOKEY && git clone --single-branch -b $BRANCH $REPO ."
   fi
 }
